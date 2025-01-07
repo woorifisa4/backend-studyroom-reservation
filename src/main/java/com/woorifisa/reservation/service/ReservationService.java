@@ -32,7 +32,7 @@ public class ReservationService {
 
     public List<GetReservationInfoResponseDTO> getReservationsByDate(LocalDate date) {
         List<Reservation> result = reservationRepository.findByDate(date);
-        log.info("{} 날짜의 예약 목록 조회 완료 ({}건)", date, result.size());
+        log.info("예약 목록 조회 완료 ({}, {}개)", date, result.size());
 
         return result.stream()
                 .map(GetReservationInfoResponseDTO::new)
