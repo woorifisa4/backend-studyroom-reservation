@@ -12,8 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -22,17 +20,22 @@ public class UserService {
     private final UserRepository userRepository;
 
     public LoginResponseDTO login(LoginRequestDTO request) {
-        Optional<User> foundUser = userRepository.findByEmail(request.getEmail());
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new InvalidUserInfoException("올바르지 않은 정보입니다."));
 
-        if (foundUser.isPresent() && foundUser.get().getName().equals(request.getName())) {
-            return new LoginResponseDTO(foundUser.get());
-        } else {
+        if (!user.getName().equals(request.getName())) {
+            log.warn("올바르지 않은 정보로 로그인을 시도합니다. ({}, {})", user.getName(), user.getEmail());
             throw new InvalidUserInfoException("올바르지 않은 정보입니다.");
         }
+
+        log.info("사용자({}, {})가 로그인에 성공했습니다.", user.getName(), user.getEmail());
+
+        return new LoginResponseDTO(user);
     }
 
     public SignUpResponseDTO signup(SignUpRequestDTO request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            log.warn("존재하는 이메일로 회원가입을 시도합니다. ({})", request.getEmail());
             throw new AlreadyExistsEmailException("이미 존재하는 이메일입니다.");
         }
 
@@ -42,6 +45,9 @@ public class UserService {
                 .build();
 
         User savedUser = userRepository.save(user);
+        log.info("사용자 ({}, {})가 회원가입에 성공했습니다.", savedUser.getName(), savedUser.getEmail());
+
         return new SignUpResponseDTO(savedUser);
     }
+
 }

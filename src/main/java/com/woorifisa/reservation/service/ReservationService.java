@@ -32,7 +32,7 @@ public class ReservationService {
 
     public List<GetReservationInfoResponseDTO> getReservationsByDate(LocalDate date) {
         List<Reservation> result = reservationRepository.findByDate(date);
-        log.info("예약 목록 조회 완료 ({}, {}개)", date, result.size());
+        log.info("{}에 존재하는 예약 목록을 조회하는데 성공했습니다.", date);
 
         return result.stream()
                 .map(GetReservationInfoResponseDTO::new)
@@ -63,7 +63,7 @@ public class ReservationService {
         participants.forEach(user ->
                 reservationParticipantRepository.save(new ReservationParticipant(savedReservation, user))
         );
-        log.info("예약 생성 완료 (예약 정보: \"{예약 날짜: {}, 시작 시간: {}, 종료 시간: {}, 회의실: {}, 예약자: {}}\")", reservation.getDate(), reservation.getStart(), reservation.getEnd(), reservation.getRoom(), reservation.getReserver());
+        log.info("사용자({}, {})가 {}에 {}부터 {}까지 회의실 {}을 예약하는데 성공하였습니다.", reserver.getName(), reserver.getEmail(), reservation.getDate(), reservation.getStart(), reservation.getEnd(), reservation.getRoom());
 
         return new CreateReservationResponseDTO(savedReservation);
     }
@@ -73,7 +73,8 @@ public class ReservationService {
 
         for (Reservation existingReservation : existingReservations) {
             if (isConflict(existingReservation, reservation)) {
-                log.error("예약 충돌: {}", reservation);
+                String message = String.format("이미 예약된 시간대에 예약을 시도하였습니다. (기존 예약: %s ~ %s, 시도 예약: %s ~ %s)", existingReservation.getStart(), existingReservation.getEnd(), reservation.getStart(), reservation.getEnd()) + System.lineSeparator() + String.format("사용자 (%s, %s)가 %s에 %s부터 %s까지 회의실 %s을 예약하는데 실패하였습니다.", reservation.getReserver().getName(), reservation.getReserver().getEmail(), reservation.getDate(), reservation.getStart(), reservation.getEnd(), reservation.getRoom());
+                log.warn(message);
                 throw new ReservationConflictException("해당하는 시간대에 이미 예약이 있습니다.");
             }
         }
@@ -86,8 +87,9 @@ public class ReservationService {
 
     public void deleteReservation(Long id) {
         if (!reservationRepository.existsById(id)) {
-            log.warn("예약 삭제 실패: {}", id);
-            throw new ReservationNotFoundException("예약이 존재하지 않아 삭제에 실패하였습니다.");
+            String message = String.format("존재하지 않는 예약을 삭제하려고 시도하였습니다. (id: %d)", id) + System.lineSeparator() + String.format("id %d에 해당하는 예약을 삭제하는데 실패하였습니다.", id);
+            log.warn(message);
+            throw new ReservationNotFoundException("해당 예약을 삭제하는데 실패하였습니다.");
         }
 
         reservationRepository.deleteById(id);
