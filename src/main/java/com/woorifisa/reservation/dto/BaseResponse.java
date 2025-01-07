@@ -1,5 +1,8 @@
 package com.woorifisa.reservation.dto;
 
+import lombok.Getter;
+
+@Getter
 public class BaseResponse<T> {
     private int statusCode;
     private String message;
