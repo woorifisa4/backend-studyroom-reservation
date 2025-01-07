@@ -1,8 +1,10 @@
 package com.woorifisa.reservation.dto;
 
 import com.woorifisa.reservation.entity.Room;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -10,6 +12,8 @@ import java.util.List;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CreateReservationRequestDTO {
     private Room room; // 예약된 회의실
     private LocalDate date; // 예약 날짜
