@@ -67,7 +67,7 @@ jobs:
     needs: push-docker-image-to-ecr
     steps:
       - name: SSH into EC2 and Deploy
-        uses: appleboy/ssh-action@v0.1.11
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
