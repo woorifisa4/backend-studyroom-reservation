@@ -20,4 +20,17 @@ public class GlobalExceptionHandler {
         BaseResponse<Void> response = new BaseResponse<>(HttpStatus.NOT_FOUND.value(), ex.getMessage(), null);
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(InvalidUserInfoException.class)
+    public ResponseEntity<BaseResponse<Void>> handleInvalidUserInfoException(InvalidUserInfoException ex) {
+        BaseResponse<Void> response = new BaseResponse<>(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), null);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AlreadyExistsEmailException.class)
+    public ResponseEntity<BaseResponse<Void>> handleAlreadyExistsEmailException(AlreadyExistsEmailException ex) {
+        BaseResponse<Void> response = new BaseResponse<>(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), null);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
 }
