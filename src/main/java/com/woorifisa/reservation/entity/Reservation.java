@@ -42,7 +42,7 @@ public class Reservation {
     @JoinColumn(name = "reservation_reserver_id")
     private User reserver; // 예약한 사용자
 
-    @OneToMany(mappedBy = "reservation")
+    @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReservationParticipant> participants; // 참여자 목록
 
 }

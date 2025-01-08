@@ -26,10 +26,10 @@ public class User {
     @Column(name = "user_email")
     private String email; // 사용자 이메일
 
-    @OneToMany(mappedBy = "reserver", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "reserver", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reservation> reservations; // 예약 목록
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReservationParticipant> participations; // 참여 목록
 
 }
