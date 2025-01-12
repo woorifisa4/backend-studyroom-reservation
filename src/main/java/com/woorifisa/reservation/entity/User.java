@@ -1,6 +1,7 @@
 package com.woorifisa.reservation.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,6 +24,7 @@ public class User {
     @Column(name = "user_name")
     private String name; // 사용자 이름
 
+    @Email
     @Column(name = "user_email")
     private String email; // 사용자 이메일
 
