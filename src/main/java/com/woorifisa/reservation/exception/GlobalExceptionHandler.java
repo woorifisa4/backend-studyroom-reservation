@@ -5,12 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.HashMap;
@@ -44,14 +44,26 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)// 데이터 타입이 맞지 않을 때 발생하는 예외 처리 용도 (날짜 형식이 맞지 않는 경우를 처리하기 위한 목적으로 사용)
-    public ResponseEntity<BaseResponse<Void>> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class) // 지원하지 않는 HTTP 메소드로 요청했을 때 발생하는 예외 처리 용도
+    public ResponseEntity<BaseResponse<Void>> handleHttpRequestMethodNotSupportedException() {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        String requestUri = attributes.getRequest().getRequestURI(); // 요청 URL
+        String httpMethod = attributes.getRequest().getMethod(); // HTTP 메소드
+
+        log.warn("지원하지 않는 HTTP 메소드에 요청이 들어왔습니다. / 요청 정보: {} {}", httpMethod, requestUri);
+
+        BaseResponse<Void> response = new BaseResponse<>(HttpStatus.METHOD_NOT_ALLOWED.value(), "올바르지 않은 요청입니다.", null);
+        return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class) // 데이터 타입이 맞지 않을 때 발생하는 예외 처리 용도 (날짜 형식이 맞지 않는 경우를 처리하기 위한 목적으로 사용)
+    public ResponseEntity<BaseResponse<Void>> handleMethodArgumentTypeMismatchException() {
         BaseResponse<Void> response = new BaseResponse<>(HttpStatus.BAD_REQUEST.value(), "올바르지 않은 요청입니다.", null);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class) // @Valid로 @RequestBody에 매핑되는 DTO 클래스를 검증할 때 던져지는 예외 처리 용도
-    public ResponseEntity<BaseResponse<Map<String, String>>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, WebRequest request) {
+    public ResponseEntity<BaseResponse<Map<String, String>>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         StringBuilder logMessage = new StringBuilder();
 
@@ -77,7 +89,7 @@ public class GlobalExceptionHandler {
         String httpMethod = attributes.getRequest().getMethod(); // HTTP 메소드
 
         String logMsg = String.format("API에 잘못된 요청이 들어왔습니다. / 오류 메시지: %s / 요청 정보: %s %s {%s}",
-                String.join(" & ", errors.values()), httpMethod, requestUri, logMessage.toString());
+                String.join(" & ", errors.values()), httpMethod, requestUri, logMessage);
 
         log.warn(logMsg);
 
