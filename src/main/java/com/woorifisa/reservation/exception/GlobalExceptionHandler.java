@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -42,6 +43,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<BaseResponse<Void>> handleAlreadyExistsEmailException(AlreadyExistsEmailException ex) {
         BaseResponse<Void> response = new BaseResponse<>(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), null);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class) // 지원하지 않는 HTTP 메소드로 요청했을 때 발생하는 예외 처리 용도
+    public ResponseEntity<BaseResponse<Void>> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        String requestUri = attributes.getRequest().getRequestURI(); // 요청 URL
+        String httpMethod = attributes.getRequest().getMethod(); // HTTP 메소드
+
+        log.warn("지원하지 않는 HTTP 메소드에 요청이 들어왔습니다. / 요청 정보: {} {}", httpMethod, requestUri);
+
+        BaseResponse<Void> response = new BaseResponse<>(HttpStatus.METHOD_NOT_ALLOWED.value(), "올바르지 않은 요청입니다.", null);
+        return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)// 데이터 타입이 맞지 않을 때 발생하는 예외 처리 용도 (날짜 형식이 맞지 않는 경우를 처리하기 위한 목적으로 사용)
