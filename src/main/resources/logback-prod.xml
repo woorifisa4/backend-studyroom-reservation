@@ -1,0 +1,38 @@
+<configuration>
+    <property resource="logback-variables.properties"/>
+    <timestamp key="today" datePattern="yyyyMMdd"/>
+
+    <!-- 콘솔 로그 출력 (warn 이상 출력, 색상 추가) -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} [%highlight(%level)] [%thread] [%logger{36}] - %msg%n
+            </Pattern>
+        </layout>
+        <!-- WARN 이상의 로그만 출력 -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+    </appender>
+
+    <!-- 파일 로그 출력 (info 이상 로그 출력, 1일 단위로 파일 생성) -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/info/%d{yyyyMMdd}_${LOG_FILE_NAME}.log</fileNamePattern>
+            <maxHistory>30</maxHistory> <!-- 최대 30일간의 로그 보관 -->
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <!-- INFO 이상의 로그만 출력 -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
+
+    <!-- 루트 로거 설정 -->
+    <root level="INFO">
+        <appender-ref ref="FILE"/> <!-- INFO 이상 로그를 파일로 출력 -->
+        <appender-ref ref="CONSOLE"/> <!-- WARN 이상 로그를 콘솔로 출력 -->
+    </root>
+</configuration>

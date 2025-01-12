@@ -73,8 +73,7 @@ public class ReservationService {
 
         for (Reservation existingReservation : existingReservations) {
             if (isConflict(existingReservation, reservation)) {
-                String message = String.format("이미 예약된 시간대에 예약을 시도하였습니다. (기존 예약: %s ~ %s, 시도 예약: %s ~ %s)", existingReservation.getStart(), existingReservation.getEnd(), reservation.getStart(), reservation.getEnd()) + System.lineSeparator() + String.format("사용자 (%s, %s)가 %s에 %s부터 %s까지 회의실 %s을 예약하는데 실패하였습니다.", reservation.getReserver().getName(), reservation.getReserver().getEmail(), reservation.getDate(), reservation.getStart(), reservation.getEnd(), reservation.getRoom());
-                log.warn(message);
+                log.warn("사용자 ({}, {})가 {} ~ {} 까지 예약을 시도하였으나, {} ~ {} 에 이미 예약이 있으므로 예약에 실패하였습니다.", reservation.getReserver().getName(), reservation.getReserver().getEmail(), reservation.getStart(), reservation.getEnd(), existingReservation.getStart(), existingReservation.getEnd());
                 throw new ReservationConflictException("해당하는 시간대에 이미 예약이 있습니다.");
             }
         }
@@ -87,10 +86,11 @@ public class ReservationService {
 
     public void deleteReservation(Long id) {
         if (!reservationRepository.existsById(id)) {
-            String message = String.format("존재하지 않는 예약을 삭제하려고 시도하였습니다. (id: %d)", id) + System.lineSeparator() + String.format("id %d에 해당하는 예약을 삭제하는데 실패하였습니다.", id);
-            log.warn(message);
+            log.warn("존재하지 않는 예약을 삭제하려고 시도하였습니다. (id: {})", id);
             throw new ReservationNotFoundException("해당 예약을 삭제하는데 실패하였습니다.");
         }
+
+        // TODO: 해당 예약을 생성한 사용자만 삭제할 수 있도록 권한 검사를 추가해야 함.
 
         reservationRepository.deleteById(id);
         log.info("예약 삭제 완료: {}", id);

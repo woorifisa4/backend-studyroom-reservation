@@ -89,7 +89,7 @@ public class GlobalExceptionHandler {
         String httpMethod = attributes.getRequest().getMethod(); // HTTP 메소드
 
         String logMsg = String.format("API에 잘못된 요청이 들어왔습니다. (요청 정보: %s %s {%s} & 오류 메시지: %s)",
-                String.join(" & ", errors.values()), httpMethod, requestUri, logMessage);
+                httpMethod, requestUri, logMessage, String.join(" & ", errors.values()));
 
         log.warn(logMsg);
 
