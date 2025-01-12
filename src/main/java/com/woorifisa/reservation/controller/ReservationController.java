@@ -20,8 +20,8 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @GetMapping("/{date}")
-    public ResponseEntity<BaseResponse<List<GetReservationInfoResponseDTO>>> getReservationsByDate(@PathVariable String date) {
-        List<GetReservationInfoResponseDTO> data = reservationService.getReservationsByDate(LocalDate.parse(date));
+    public ResponseEntity<BaseResponse<List<GetReservationInfoResponseDTO>>> getReservationsByDate(@PathVariable LocalDate date) {
+        List<GetReservationInfoResponseDTO> data = reservationService.getReservationsByDate(date);
         BaseResponse<List<GetReservationInfoResponseDTO>> response = new BaseResponse<>(HttpStatus.OK.value(), String.format("예약 현황을 조회하는데 성공했습니다.", date), data);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
