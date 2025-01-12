@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
         String requestUri = attributes.getRequest().getRequestURI(); // 요청 URL
         String httpMethod = attributes.getRequest().getMethod(); // HTTP 메소드
 
-        log.warn("지원하지 않는 HTTP 메소드에 요청이 들어왔습니다. / 요청 정보: {} {}", httpMethod, requestUri);
+        log.warn("지원하지 않는 HTTP 메소드에 요청이 들어왔습니다. (요청 정보: {} {})", httpMethod, requestUri);
 
         BaseResponse<Void> response = new BaseResponse<>(HttpStatus.METHOD_NOT_ALLOWED.value(), "올바르지 않은 요청입니다.", null);
         return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
@@ -88,7 +88,7 @@ public class GlobalExceptionHandler {
         String requestUri = attributes.getRequest().getRequestURI(); // 요청 URL
         String httpMethod = attributes.getRequest().getMethod(); // HTTP 메소드
 
-        String logMsg = String.format("API에 잘못된 요청이 들어왔습니다. / 오류 메시지: %s / 요청 정보: %s %s {%s}",
+        String logMsg = String.format("API에 잘못된 요청이 들어왔습니다. (요청 정보: %s %s {%s} & 오류 메시지: %s)",
                 String.join(" & ", errors.values()), httpMethod, requestUri, logMessage);
 
         log.warn(logMsg);
