@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -20,9 +22,13 @@ public class UserService {
     private final UserRepository userRepository;
 
     public LoginResponseDTO login(LoginRequestDTO request) {
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new InvalidUserInfoException("올바르지 않은 정보입니다."));
+        Optional<User> optionalUser = userRepository.findByEmail(request.getEmail());
+        if (optionalUser.isEmpty()) {
+            log.warn("존재하지 않는 이메일로 로그인을 시도합니다. (name: {}, email: {})", request.getName(), request.getEmail());
+            throw new InvalidUserInfoException("올바르지 않은 정보입니다.");
+        }
 
+        User user = optionalUser.get();
         if (!user.getName().equals(request.getName())) {
             log.warn("올바르지 않은 정보로 로그인을 시도합니다. ({}, {})", user.getName(), user.getEmail());
             throw new InvalidUserInfoException("올바르지 않은 정보입니다.");
