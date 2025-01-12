@@ -2,6 +2,7 @@ package com.woorifisa.reservation.controller;
 
 import com.woorifisa.reservation.dto.*;
 import com.woorifisa.reservation.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<BaseResponse<SignUpResponseDTO>> signup(@RequestBody SignUpRequestDTO body) {
+    public ResponseEntity<BaseResponse<SignUpResponseDTO>> signup(@Valid @RequestBody SignUpRequestDTO body) {
         SignUpResponseDTO data = userService.signup(body);
         BaseResponse<SignUpResponseDTO> response = new BaseResponse<>(HttpStatus.CREATED.value(), "회원가입에 성공했습니다.", data);
 
@@ -26,7 +27,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<BaseResponse<LoginResponseDTO>> login(@RequestBody LoginRequestDTO body) {
+    public ResponseEntity<BaseResponse<LoginResponseDTO>> login(@Valid @RequestBody LoginRequestDTO body) {
         LoginResponseDTO data = userService.login(body);
         BaseResponse<LoginResponseDTO> response = new BaseResponse<>(HttpStatus.OK.value(), "로그인에 성공했습니다.", data);
 
