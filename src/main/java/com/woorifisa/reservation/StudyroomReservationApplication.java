@@ -13,9 +13,4 @@ public class StudyroomReservationApplication {
         SpringApplication.run(StudyroomReservationApplication.class, args);
     }
 
-    @PostConstruct
-    public void init() {
-        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul")); // 타임존 설정
-    }
-
 }
