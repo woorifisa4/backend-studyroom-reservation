@@ -32,8 +32,4 @@ public class User {
 
     @OneToMany(mappedBy = "reserver", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reservation> reservations; // 예약 목록
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ReservationParticipant> participations; // 참여 목록
-
 }

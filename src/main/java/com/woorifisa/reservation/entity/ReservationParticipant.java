@@ -15,16 +15,15 @@ public class ReservationParticipant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 식별자
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reservation_id")
-    private Reservation reservation; // 예약
+    /**
+     * @see Reservation #id
+     */
+    @Column(name = "reservation_id")
+    private Long reservationId; // 예약 식별자
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user; // 사용자
-
-    public ReservationParticipant(Reservation reservation, User user) {
-        this.reservation = reservation;
-        this.user = user;
-    }
+    /**
+     * @see User #id
+     */
+    @Column(name = "participant_user_id")
+    private Long participantUserId; // 사용자 식별자
 }
