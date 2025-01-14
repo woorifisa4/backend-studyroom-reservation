@@ -6,10 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,6 +27,14 @@ public class UserController {
     public ResponseEntity<BaseResponse<LoginResponseDTO>> login(@Valid @RequestBody LoginRequestDTO body) {
         LoginResponseDTO data = userService.login(body);
         BaseResponse<LoginResponseDTO> response = new BaseResponse<>(HttpStatus.OK.value(), "로그인에 성공했습니다.", data);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<BaseResponse<UserQueryResponseDTO>> searchUsers(@RequestParam String keyword) {
+        UserQueryResponseDTO data = userService.searchUsers(keyword);
+        BaseResponse<UserQueryResponseDTO> response = new BaseResponse<>(HttpStatus.OK.value(), "사용자 검색에 성공했습니다.", data);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

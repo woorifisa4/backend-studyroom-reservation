@@ -1,9 +1,6 @@
 package com.woorifisa.reservation.service;
 
-import com.woorifisa.reservation.dto.LoginRequestDTO;
-import com.woorifisa.reservation.dto.LoginResponseDTO;
-import com.woorifisa.reservation.dto.SignUpRequestDTO;
-import com.woorifisa.reservation.dto.SignUpResponseDTO;
+import com.woorifisa.reservation.dto.*;
 import com.woorifisa.reservation.entity.User;
 import com.woorifisa.reservation.exception.AlreadyExistsEmailException;
 import com.woorifisa.reservation.exception.InvalidUserInfoException;
@@ -12,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -56,4 +54,14 @@ public class UserService {
         return new SignUpResponseDTO(savedUser);
     }
 
+    public UserQueryResponseDTO searchUsers(String keyword) {
+        // TODO: 사용자 조회 로직 개선 (초성 검색, 이름과 이메일 동시 검색 등)
+
+        List<User> users = userRepository.findByNameContaining(keyword);
+        return new UserQueryResponseDTO(
+                users.stream()
+                        .map(UserDTO::new)
+                        .toList()
+        );
+    }
 }
