@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -40,11 +39,14 @@ public class ReservationService {
     }
 
     public CreateReservationResponseDTO createReservation(CreateReservationRequestDTO requestDTO) {
+        // 예약자 조회
         User reserver = userRepository.findById(requestDTO.getReserver())
                 .orElseThrow(() -> new ReservationNotFoundException("예약한 사용자를 찾을 수 없습니다."));
 
-        List<User> participants = userRepository.findByIdIn(requestDTO.getParticipants());
+        // 참석자 조회
+        List<User> participants = userRepository.findAllById(requestDTO.getParticipants());
 
+        // 예약 객체 생성
         Reservation reservation = Reservation.builder()
                 .room(requestDTO.getRoom())
                 .date(requestDTO.getDate())
@@ -52,20 +54,28 @@ public class ReservationService {
                 .end(requestDTO.getEnd())
                 .description(requestDTO.getDescription())
                 .reserver(reserver)
-                .participants(participants.stream()
-                        .map(user -> new ReservationParticipant(null, user))
-                        .collect(Collectors.toList()))
                 .build();
 
+        // 예약 검증
         validateReservation(reservation);
 
+        // 예약 저장
         Reservation savedReservation = reservationRepository.save(reservation);
-        participants.forEach(user ->
-                reservationParticipantRepository.save(new ReservationParticipant(savedReservation, user))
-        );
-        log.info("사용자({}, {})가 {}에 {}부터 {}까지 회의실 {}을 예약하는데 성공하였습니다.", reserver.getName(), reserver.getEmail(), reservation.getDate(), reservation.getStart(), reservation.getEnd(), reservation.getRoom());
 
-        return new CreateReservationResponseDTO(savedReservation);
+        // 예약 - 참가자 테이블 데이터 저장
+        participants.forEach(participant -> {
+            ReservationParticipant rp = new ReservationParticipant(null, savedReservation, participant);
+            reservationParticipantRepository.save(rp);
+        });
+
+        // TODO: 예약자, 참석자에게 예약 정보 전송 로직 추가 필요
+
+        log.info("사용자({}, {})가 {}에 {}부터 {}까지 회의실 {}을 예약하는데 성공하였습니다.",
+                reserver.getName(), reserver.getEmail(),
+                savedReservation.getDate(), savedReservation.getStart(),
+                savedReservation.getEnd(), savedReservation.getRoom());
+
+        return new CreateReservationResponseDTO(savedReservation, participants);
     }
 
     private void validateReservation(Reservation reservation) throws ReservationConflictException {

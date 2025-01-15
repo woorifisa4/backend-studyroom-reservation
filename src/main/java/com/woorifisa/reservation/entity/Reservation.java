@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -43,6 +44,6 @@ public class Reservation {
     private User reserver; // 예약한 사용자
 
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ReservationParticipant> participants; // 참여자 목록
+    private List<ReservationParticipant> participants = new ArrayList<>();
 
 }

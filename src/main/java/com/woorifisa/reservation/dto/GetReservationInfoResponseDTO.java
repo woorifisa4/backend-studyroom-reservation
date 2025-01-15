@@ -6,7 +6,6 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 
 @Data
 public class GetReservationInfoResponseDTO {
@@ -17,7 +16,6 @@ public class GetReservationInfoResponseDTO {
     private LocalTime end; // 예약 종료 시간
     private String description; // 예약 설명
     private UserDTO reserver; // 예약한 사용자
-    private List<UserDTO> participants; // 참여자 목록
 
     public GetReservationInfoResponseDTO(Reservation reservation) {
         this.id = reservation.getId();
@@ -27,8 +25,5 @@ public class GetReservationInfoResponseDTO {
         this.end = reservation.getEnd();
         this.description = reservation.getDescription();
         this.reserver = new UserDTO(reservation.getReserver());
-        this.participants = reservation.getParticipants().stream()
-                .map(participant -> new UserDTO(participant.getUser()))
-                .toList();
     }
 }
