@@ -64,7 +64,7 @@ public class ReservationService {
 
         // 예약 - 참가자 테이블 데이터 저장
         participants.forEach(participant -> {
-            ReservationParticipant rp = new ReservationParticipant(null, savedReservation.getId(), participant.getId());
+            ReservationParticipant rp = new ReservationParticipant(null, savedReservation, participant);
             reservationParticipantRepository.save(rp);
         });
 

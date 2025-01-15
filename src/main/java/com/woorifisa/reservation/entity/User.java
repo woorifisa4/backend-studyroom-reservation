@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -32,4 +33,7 @@ public class User {
 
     @OneToMany(mappedBy = "reserver", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reservation> reservations; // 예약 목록
+
+    @OneToMany(mappedBy = "participant", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReservationParticipant> participations = new ArrayList<>();
 }
