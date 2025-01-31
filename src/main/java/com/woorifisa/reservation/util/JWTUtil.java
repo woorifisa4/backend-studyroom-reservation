@@ -11,14 +11,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.security.Key;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Slf4j
 @Component
 public class JWTUtil {
 
-    private final Key secretKey;
+    private final SecretKey secretKey;
 
     private final String issuer;
 
@@ -36,7 +36,7 @@ public class JWTUtil {
             @Value("${jwt.audience}") String audience,
             UserRepository userRepository
     ) {
-        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.issuer = issuer;
         this.audience = audience;
         this.userRepository = userRepository;
@@ -112,9 +112,9 @@ public class JWTUtil {
 
     public TokenDTO refreshTokens(String refreshToken) {
         try {
-            // 토큰 파싱 및 검증
+            // 토큰 파싱
             Claims claims = Jwts.parser()
-                    .verifyWith((SecretKey) secretKey)
+                    .verifyWith(secretKey)
                     .build()
                     .parseSignedClaims(refreshToken)
                     .getPayload();
@@ -140,6 +140,41 @@ public class JWTUtil {
 
         } catch (UnsupportedJwtException | MalformedJwtException | IllegalArgumentException e) {
             log.warn("유효하지 않은 리프레시 토큰으로 재발급을 시도했습니다.: {}", e.getMessage());
+            throw new JwtException("토큰이 유효하지 않습니다.");
+        }
+    }
+
+    public boolean validateToken(String accessToken) {
+        try {
+            // 토큰 파싱
+            Claims claims = Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(accessToken)
+                    .getPayload();
+
+            // 토큰 만료 시간 검증
+            return !claims.getExpiration().before(new Date());
+
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    public Long getUserIdFromToken(String accessToken) {
+        try {
+            // 토큰 파싱
+            Claims claims = Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(accessToken)
+                    .getPayload();
+
+            // 사용자 ID 추출
+            return Long.parseLong(claims.getSubject());
+
+        } catch (JwtException | IllegalArgumentException e) {
+            log.warn("유효하지 않은 토큰으로 사용자 ID를 추출하려고 시도했습니다.: {}", e.getMessage());
             throw new JwtException("토큰이 유효하지 않습니다.");
         }
     }
