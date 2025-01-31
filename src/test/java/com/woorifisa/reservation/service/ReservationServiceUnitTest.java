@@ -3,9 +3,8 @@ package com.woorifisa.reservation.service;
 import com.woorifisa.reservation.dto.CreateReservationRequestDTO;
 import com.woorifisa.reservation.dto.CreateReservationResponseDTO;
 import com.woorifisa.reservation.entity.Reservation;
-import com.woorifisa.reservation.entity.Room;
+import com.woorifisa.reservation.entity.Table;
 import com.woorifisa.reservation.entity.User;
-import com.woorifisa.reservation.exception.ReservationConflictException;
 import com.woorifisa.reservation.repository.ReservationParticipantRepository;
 import com.woorifisa.reservation.repository.ReservationRepository;
 import com.woorifisa.reservation.repository.UserRepository;
@@ -47,7 +46,7 @@ class ReservationServiceUnitTest {
     void create_reservation_success_1() {
         // Given: 들어올 예약 정보와 충돌이 없는 상황이 주어졌을때
         CreateReservationRequestDTO request = CreateReservationRequestDTO.builder()
-                .room(Room.A)
+                .table(Table.A)
                 .date(LocalDate.now())
                 .start(LocalTime.of(18, 0))
                 .end(LocalTime.of(20, 0))
@@ -69,7 +68,7 @@ class ReservationServiceUnitTest {
 
         // Then: 예약이 생성되고, 예약 정보가 반환된다
         assertNotNull(response);
-        assertEquals(request.getRoom(), response.getRoom());
+        assertEquals(request.getTable(), response.getTable());
         assertEquals(request.getDate(), response.getDate());
         assertEquals(request.getStart(), response.getStart());
         assertEquals(request.getEnd(), response.getEnd());
@@ -81,7 +80,7 @@ class ReservationServiceUnitTest {
     void create_reservation_success_2() {
         // Given: 들어올 예약 정보와 충돌이 없는 상황이 주어졌을때
         CreateReservationRequestDTO request = CreateReservationRequestDTO.builder()
-                .room(Room.A)
+                .table(Table.A)
                 .date(LocalDate.now())
                 .start(LocalTime.of(18, 0))
                 .end(LocalTime.of(20, 0))
@@ -94,7 +93,7 @@ class ReservationServiceUnitTest {
         User participant = new User(2L, "Participant", "participant@example.com", null, null);
 
         Reservation existingReservation = Reservation.builder()
-                .room(Room.A)
+                .table(Table.A)
                 .date(LocalDate.now())
                 .start(LocalTime.of(20, 00))
                 .end(LocalTime.of(20, 30))
@@ -110,7 +109,7 @@ class ReservationServiceUnitTest {
 
         // Then: 예약이 생성되고, 예약 정보가 반환된다
         assertNotNull(response);
-        assertEquals(request.getRoom(), response.getRoom());
+        assertEquals(request.getTable(), response.getTable());
         assertEquals(request.getDate(), response.getDate());
         assertEquals(request.getStart(), response.getStart());
         assertEquals(request.getEnd(), response.getEnd());

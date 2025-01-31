@@ -1,6 +1,6 @@
 package com.woorifisa.reservation.dto;
 
-import com.woorifisa.reservation.entity.Room;
+import com.woorifisa.reservation.entity.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateReservationRequestDTO {
-    private Room room; // 예약된 회의실
+    private Table table; // 예약된 회의실
     private LocalDate date; // 예약 날짜
     private LocalTime start; // 예약 시작 시간
     private LocalTime end; // 예약 종료 시간

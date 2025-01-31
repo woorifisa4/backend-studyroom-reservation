@@ -25,7 +25,7 @@ public class Reservation {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "reservation_room")
-    private Room room; // 예약된 회의실
+    private Table table; // 예약된 회의실
 
     @Column(name = "reservation_date")
     private LocalDate date; // 예약 날짜

@@ -48,7 +48,7 @@ public class ReservationService {
 
         // 예약 객체 생성
         Reservation reservation = Reservation.builder()
-                .room(requestDTO.getRoom())
+                .table(requestDTO.getTable())
                 .date(requestDTO.getDate())
                 .start(requestDTO.getStart())
                 .end(requestDTO.getEnd())
@@ -73,7 +73,7 @@ public class ReservationService {
         log.info("사용자({}, {})가 {}에 {}부터 {}까지 회의실 {}을 예약하는데 성공하였습니다.",
                 reserver.getName(), reserver.getEmail(),
                 savedReservation.getDate(), savedReservation.getStart(),
-                savedReservation.getEnd(), savedReservation.getRoom());
+                savedReservation.getEnd(), savedReservation.getTable());
 
         return new CreateReservationResponseDTO(savedReservation, participants);
     }
@@ -90,7 +90,7 @@ public class ReservationService {
     }
 
     private boolean isConflict(Reservation existing, Reservation newReservation) {
-        return existing.getRoom().equals(newReservation.getRoom()) // 같은 회의실이면서
+        return existing.getTable().equals(newReservation.getTable()) // 같은 회의실이면서
                 && ((existing.getStart().isBefore(newReservation.getEnd()) && existing.getEnd().isAfter(newReservation.getStart()))); // 시간대가 겹치는 경우
     }
 
