@@ -68,4 +68,8 @@ public class UserService {
                         .toList()
         );
     }
+
+    public TokenDTO refreshToken(RefreshTokenInfoRequestDTO request) {
+        return jwtUtil.refreshTokens(request.getRefreshToken());
+    }
 }
