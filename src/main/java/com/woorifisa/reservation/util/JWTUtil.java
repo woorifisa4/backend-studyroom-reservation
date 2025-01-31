@@ -5,12 +5,15 @@ import com.woorifisa.reservation.entity.Role;
 import com.woorifisa.reservation.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Date;
 
+@Slf4j
 @Component
 public class JWTUtil {
 
@@ -43,10 +46,6 @@ public class JWTUtil {
                 .build();
     }
 
-    public String createAccessToken(User user, Date accessTokenExpiry) {
-        return createAccessToken(user.getId(), user.getName(), user.getRole(), accessTokenExpiry);
-    }
-
     public String createAccessToken(Long userId, String userName, Role userRole, Date accessTokenExpiry) {
         return Jwts.builder()
                 // Header: 토큰의 타입(JWT)과 서명에 사용된 알고리즘(HS512) 정보를 담는다.
@@ -73,10 +72,6 @@ public class JWTUtil {
                 .compact();
     }
 
-    public String createRefreshToken(User user, Date refreshTokenExpiry) {
-        return createRefreshToken(user.getId(), user.getName(), refreshTokenExpiry);
-    }
-
     public String createRefreshToken(Long userId, String userName, Date refreshTokenExpiry) {
         return Jwts.builder()
                 .subject(userName) // sub 클레임: 토큰 제목을 지정
@@ -87,4 +82,37 @@ public class JWTUtil {
                 .signWith(secretKey) // signWith 메소드를 사용해 서명 알고리즘과 키를 지정
                 .compact(); // JWT 토큰 문자열을 생성
     }
+
+    public TokenDTO refreshTokens(String refreshToken) {
+        try {
+            // 토큰 파싱 및 검증
+            Claims claims = Jwts.parser()
+                    .verifyWith((SecretKey) secretKey)
+                    .build()
+                    .parseSignedClaims(refreshToken)
+                    .getPayload();
+
+            // 만료 시간 검증
+            if (claims.getExpiration().before(new Date())) {
+                throw new ExpiredJwtException(null, claims, "리프레시 토큰이 만료되었습니다.");
+            }
+
+            // 클레임에서 사용자 정보 추출
+            String name = claims.getSubject();
+            Long userId = claims.get("client-id", Long.class);
+            Role role = Role.valueOf(claims.get("role", String.class));
+
+            // 새로운 토큰 발급
+            return generateTokens(userId, name, role);
+
+        } catch (ExpiredJwtException e) {
+            log.warn("만료된 리프레시 토큰으로 재발급을 시도했습니다.");
+            throw new JwtException("토큰이 만료되었습니다.");
+
+        } catch (UnsupportedJwtException | MalformedJwtException | IllegalArgumentException e) {
+            log.warn("유효하지 않은 리프레시 토큰으로 재발급을 시도했습니다.: {}", e.getMessage());
+            throw new JwtException("토큰이 유효하지 않습니다.");
+        }
+    }
+
 }
