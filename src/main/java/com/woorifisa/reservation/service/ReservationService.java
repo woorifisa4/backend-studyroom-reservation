@@ -8,6 +8,7 @@ import com.woorifisa.reservation.entity.ReservationParticipant;
 import com.woorifisa.reservation.entity.User;
 import com.woorifisa.reservation.exception.ReservationConflictException;
 import com.woorifisa.reservation.exception.ReservationNotFoundException;
+import com.woorifisa.reservation.exception.InvalidReservationTimeException;
 import com.woorifisa.reservation.repository.ReservationParticipantRepository;
 import com.woorifisa.reservation.repository.ReservationRepository;
 import com.woorifisa.reservation.repository.UserRepository;
@@ -79,6 +80,18 @@ public class ReservationService {
     }
 
     private void validateReservation(Reservation reservation) throws ReservationConflictException {
+        // 2시간 제한 검증
+        if (reservation.getEnd().minusHours(2).isAfter(reservation.getStart())) {
+            log.warn("사용자 ({}, {})가 {}의 회의실 {}을 {} ~ {} 까지 예약을 시도하였으나, 2시간 이상 예약하여 예약에 실패하였습니다.",
+                    reservation.getReserver().getName(),
+                    reservation.getReserver().getEmail(),
+                    reservation.getDate(),
+                    reservation.getTable(),
+                    reservation.getStart(),
+                    reservation.getEnd());
+            throw new InvalidReservationTimeException("예약은 최대 2시간까지만 가능합니다.");
+        }
+
         List<Reservation> existingReservations = reservationRepository.findByDate(reservation.getDate());
 
         for (Reservation existingReservation : existingReservations) {

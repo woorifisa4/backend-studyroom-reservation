@@ -44,6 +44,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InvalidReservationTimeException.class)
+    public ResponseEntity<BaseResponse<Void>> handleInvalidReservationTimeException(InvalidReservationTimeException ex) {
+        BaseResponse<Void> response = new BaseResponse<>(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), null);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class) // 지원하지 않는 HTTP 메소드로 요청했을 때 발생하는 예외 처리 용도
     public ResponseEntity<BaseResponse<Void>> handleHttpRequestMethodNotSupportedException() {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
