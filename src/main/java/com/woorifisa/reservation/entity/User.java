@@ -31,6 +31,11 @@ public class User {
     @Column(name = "user_email")
     private String email; // 사용자 이메일
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_role")
+    @Builder.Default
+    private Role role = Role.USER;
+
     @OneToMany(mappedBy = "reserver", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reservation> reservations; // 예약 목록
 
