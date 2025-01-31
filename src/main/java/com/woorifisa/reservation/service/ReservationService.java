@@ -14,6 +14,7 @@ import com.woorifisa.reservation.repository.ReservationRepository;
 import com.woorifisa.reservation.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -30,6 +31,7 @@ public class ReservationService {
 
     private final ReservationParticipantRepository reservationParticipantRepository;
 
+    @PreAuthorize("isAuthenticated()")
     public List<GetReservationInfoResponseDTO> getReservationsByDate(LocalDate date) {
         List<Reservation> result = reservationRepository.findByDate(date);
         log.info("{}에 존재하는 예약 목록을 조회하는데 성공했습니다.", date);
@@ -39,6 +41,7 @@ public class ReservationService {
                 .toList();
     }
 
+    @PreAuthorize("isAuthenticated()")
     public CreateReservationResponseDTO createReservation(CreateReservationRequestDTO requestDTO) {
         // 예약자 조회
         User reserver = userRepository.findById(requestDTO.getReserver())
@@ -107,13 +110,12 @@ public class ReservationService {
                 && ((existing.getStart().isBefore(newReservation.getEnd()) && existing.getEnd().isAfter(newReservation.getStart()))); // 시간대가 겹치는 경우
     }
 
+    @PreAuthorize(" @authorizationChecker.isReservationOwner(authentication, #id)")
     public void deleteReservation(Long id) {
         if (!reservationRepository.existsById(id)) {
             log.warn("존재하지 않는 예약을 삭제하려고 시도하였습니다. (id: {})", id);
             throw new ReservationNotFoundException("해당 예약을 삭제하는데 실패하였습니다.");
         }
-
-        // TODO: 해당 예약을 생성한 사용자만 삭제할 수 있도록 권한 검사를 추가해야 함.
 
         reservationRepository.deleteById(id);
         log.info("예약 삭제 완료: {}", id);

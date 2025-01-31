@@ -43,8 +43,10 @@ public class SecurityConfig {
                     // CORS 설정 적용.
                     cors.configurationSource(source);
                 })
-                .authorizeHttpRequests(request ->
-                        request.anyRequest().permitAll() // 임시) 모든 요청에 대해 인증 불필요.
+                .authorizeHttpRequests(request -> request
+                        .requestMatchers("/users/login", "/users/signup").permitAll()
+                        .requestMatchers("/users/token/refresh").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // JWT 사용으로 세션 비활성화.

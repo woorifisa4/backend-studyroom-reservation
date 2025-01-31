@@ -8,6 +8,7 @@ import com.woorifisa.reservation.repository.UserRepository;
 import com.woorifisa.reservation.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -58,6 +59,7 @@ public class UserService {
         return new SignUpResponseDTO(savedUser);
     }
 
+    @PreAuthorize("isAuthenticated()")
     public UserQueryResponseDTO searchUsers(String keyword) {
         // TODO: 사용자 조회 로직 개선 (초성 검색, 이름과 이메일 동시 검색 등)
 
