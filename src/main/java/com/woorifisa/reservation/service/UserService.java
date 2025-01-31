@@ -5,6 +5,7 @@ import com.woorifisa.reservation.entity.User;
 import com.woorifisa.reservation.exception.AlreadyExistsEmailException;
 import com.woorifisa.reservation.exception.InvalidUserInfoException;
 import com.woorifisa.reservation.repository.UserRepository;
+import com.woorifisa.reservation.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,8 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
+    private final JWTUtil jwtUtil;
 
     private final UserRepository userRepository;
 
@@ -32,9 +35,10 @@ public class UserService {
             throw new InvalidUserInfoException("올바르지 않은 정보입니다.");
         }
 
+        TokenDTO token = jwtUtil.generateTokens(user);
         log.info("사용자({}, {})가 로그인에 성공했습니다.", user.getName(), user.getEmail());
 
-        return new LoginResponseDTO(user);
+        return new LoginResponseDTO(user, token);
     }
 
     public SignUpResponseDTO signup(SignUpRequestDTO request) {
