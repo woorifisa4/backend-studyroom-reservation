@@ -43,7 +43,8 @@ public class JWTUtil {
         return Jwts.builder()
                 // Header: 토큰의 타입(JWT)과 서명에 사용된 알고리즘(HS512) 정보를 담는다.
                 .header()
-                .add("type", "JWT") // 토큰의 타입 지정. 여기서는 JWT를 사용.
+                .add("typ", "JWT") // 토큰의 타입 지정. 여기서는 JWT를 사용.
+                .add("alg", "HS512") // 서명 알고리즘 지정. 여기서는 HMAC SHA-512를 사용.
                 .and()
 
                 // Payload: 토큰에 담을 클레임(데이터)을 지정. 클레임에는 사용자의 이름, 역할, ID 등이 포함될 수 있다.
