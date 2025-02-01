@@ -1,7 +1,7 @@
 package com.woorifisa.reservation.dto;
 
 import com.woorifisa.reservation.entity.Reservation;
-import com.woorifisa.reservation.entity.Room;
+import com.woorifisa.reservation.entity.Table;
 import com.woorifisa.reservation.entity.User;
 import lombok.Data;
 
@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 public class CreateReservationResponseDTO {
     private Long id; // 예약 식별자
-    private Room room; // 예약된 회의실
+    private Table table; // 예약된 회의실
     private LocalDate date; // 예약 날짜
     private LocalTime start; // 예약 시작 시간
     private LocalTime end; // 예약 종료 시간
@@ -22,7 +22,7 @@ public class CreateReservationResponseDTO {
 
     public CreateReservationResponseDTO(Reservation reservation, List<User> participants) {
         this.id = reservation.getId();
-        this.room = reservation.getRoom();
+        this.table = reservation.getTable();
         this.date = reservation.getDate();
         this.start = reservation.getStart();
         this.end = reservation.getEnd();

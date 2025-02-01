@@ -1,5 +1,6 @@
+
 package com.woorifisa.reservation.entity;
 
-public enum Room {
-    A, B, C, D, E
+public enum Role {
+    USER, ADMIN
 }

@@ -38,4 +38,12 @@ public class UserController {
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @PostMapping("/token/refresh")
+    public ResponseEntity<BaseResponse<TokenDTO>> refreshToken(@Valid @RequestBody RefreshTokenInfoRequestDTO body) {
+        TokenDTO data = userService.refreshToken(body);
+        BaseResponse<TokenDTO> response = new BaseResponse<>(HttpStatus.OK.value(), "토큰 재발급에 성공했습니다.", data);
+        
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

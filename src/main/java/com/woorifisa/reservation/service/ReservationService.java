@@ -8,11 +8,13 @@ import com.woorifisa.reservation.entity.ReservationParticipant;
 import com.woorifisa.reservation.entity.User;
 import com.woorifisa.reservation.exception.ReservationConflictException;
 import com.woorifisa.reservation.exception.ReservationNotFoundException;
+import com.woorifisa.reservation.exception.InvalidReservationTimeException;
 import com.woorifisa.reservation.repository.ReservationParticipantRepository;
 import com.woorifisa.reservation.repository.ReservationRepository;
 import com.woorifisa.reservation.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -29,6 +31,7 @@ public class ReservationService {
 
     private final ReservationParticipantRepository reservationParticipantRepository;
 
+    @PreAuthorize("isAuthenticated()")
     public List<GetReservationInfoResponseDTO> getReservationsByDate(LocalDate date) {
         List<Reservation> result = reservationRepository.findByDate(date);
         log.info("{}에 존재하는 예약 목록을 조회하는데 성공했습니다.", date);
@@ -38,6 +41,7 @@ public class ReservationService {
                 .toList();
     }
 
+    @PreAuthorize("isAuthenticated()")
     public CreateReservationResponseDTO createReservation(CreateReservationRequestDTO requestDTO) {
         // 예약자 조회
         User reserver = userRepository.findById(requestDTO.getReserver())
@@ -48,7 +52,7 @@ public class ReservationService {
 
         // 예약 객체 생성
         Reservation reservation = Reservation.builder()
-                .room(requestDTO.getRoom())
+                .table(requestDTO.getTable())
                 .date(requestDTO.getDate())
                 .start(requestDTO.getStart())
                 .end(requestDTO.getEnd())
@@ -73,12 +77,24 @@ public class ReservationService {
         log.info("사용자({}, {})가 {}에 {}부터 {}까지 회의실 {}을 예약하는데 성공하였습니다.",
                 reserver.getName(), reserver.getEmail(),
                 savedReservation.getDate(), savedReservation.getStart(),
-                savedReservation.getEnd(), savedReservation.getRoom());
+                savedReservation.getEnd(), savedReservation.getTable());
 
         return new CreateReservationResponseDTO(savedReservation, participants);
     }
 
     private void validateReservation(Reservation reservation) throws ReservationConflictException {
+        // 2시간 제한 검증
+        if (reservation.getEnd().minusHours(2).isAfter(reservation.getStart())) {
+            log.warn("사용자 ({}, {})가 {}의 회의실 {}을 {} ~ {} 까지 예약을 시도하였으나, 2시간 이상 예약하여 예약에 실패하였습니다.",
+                    reservation.getReserver().getName(),
+                    reservation.getReserver().getEmail(),
+                    reservation.getDate(),
+                    reservation.getTable(),
+                    reservation.getStart(),
+                    reservation.getEnd());
+            throw new InvalidReservationTimeException("예약은 최대 2시간까지만 가능합니다.");
+        }
+
         List<Reservation> existingReservations = reservationRepository.findByDate(reservation.getDate());
 
         for (Reservation existingReservation : existingReservations) {
@@ -90,17 +106,16 @@ public class ReservationService {
     }
 
     private boolean isConflict(Reservation existing, Reservation newReservation) {
-        return existing.getRoom().equals(newReservation.getRoom()) // 같은 회의실이면서
+        return existing.getTable().equals(newReservation.getTable()) // 같은 회의실이면서
                 && ((existing.getStart().isBefore(newReservation.getEnd()) && existing.getEnd().isAfter(newReservation.getStart()))); // 시간대가 겹치는 경우
     }
 
+    @PreAuthorize(" @authorizationChecker.isReservationOwner(authentication, #id)")
     public void deleteReservation(Long id) {
         if (!reservationRepository.existsById(id)) {
             log.warn("존재하지 않는 예약을 삭제하려고 시도하였습니다. (id: {})", id);
             throw new ReservationNotFoundException("해당 예약을 삭제하는데 실패하였습니다.");
         }
-
-        // TODO: 해당 예약을 생성한 사용자만 삭제할 수 있도록 권한 검사를 추가해야 함.
 
         reservationRepository.deleteById(id);
         log.info("예약 삭제 완료: {}", id);

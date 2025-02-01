@@ -12,6 +12,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.UnsupportedJwtException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +45,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AlreadyExistsEmailException.class)
     public ResponseEntity<BaseResponse<Void>> handleAlreadyExistsEmailException(AlreadyExistsEmailException ex) {
+        BaseResponse<Void> response = new BaseResponse<>(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), null);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidReservationTimeException.class)
+    public ResponseEntity<BaseResponse<Void>> handleInvalidReservationTimeException(InvalidReservationTimeException ex) {
         BaseResponse<Void> response = new BaseResponse<>(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), null);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
@@ -96,6 +107,12 @@ public class GlobalExceptionHandler {
         // 응답
         BaseResponse<Map<String, String>> response = new BaseResponse<>(HttpStatus.BAD_REQUEST.value(), "올바르지 않은 요청입니다.", errors);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<BaseResponse<Void>> handleJwtException(JwtException ex) {
+        BaseResponse<Void> response = new BaseResponse<>(HttpStatus.UNAUTHORIZED.value(), ex.getMessage(), null);
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
 }
