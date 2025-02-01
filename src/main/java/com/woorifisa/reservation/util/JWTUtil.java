@@ -24,9 +24,9 @@ public class JWTUtil {
 
     private final String audience;
 
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000L * 60 * 60 * 3; // 3시간
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000L * 60 * 30; // 30분
 
-    private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000L * 60 * 60 * 24 * 7; // 7일
+    private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000L * 60 * 60 * 24; // 1일
 
     private final UserRepository userRepository;
 
