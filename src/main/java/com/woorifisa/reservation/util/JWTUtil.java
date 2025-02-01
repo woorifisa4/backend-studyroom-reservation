@@ -132,6 +132,7 @@ public class JWTUtil {
                     .orElseThrow(() -> new JwtException("사용자 정보를 찾을 수 없습니다."));
 
             // 새로운 토큰 발급
+            log.info("사용자({})의 리프레시 토큰을 재발급하는데 성공하였습니다.", user.getId());
             return generateTokens(user);
 
         } catch (ExpiredJwtException e) {
