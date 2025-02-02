@@ -44,8 +44,8 @@ public class SecurityConfig {
                     cors.configurationSource(source);
                 })
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/users/login", "/users/signup").permitAll()
-                        .requestMatchers("/users/token/refresh").permitAll()
+                        .requestMatchers("/users/login", "/users/signup", "/users/token/refresh").permitAll()
+                        .requestMatchers("/actuator/health").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->
