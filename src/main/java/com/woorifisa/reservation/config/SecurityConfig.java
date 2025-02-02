@@ -2,6 +2,7 @@ package com.woorifisa.reservation.config;
 
 import com.woorifisa.reservation.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -23,20 +24,20 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    
+    @Value("${cors.allowed-origins}")
+    private String allowedOrigins;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // TODO: 프로토타입 개발을 위해 임시로 CSRF 설정 비활성화 및 CORS 설정을 모두 허용하는 설정을 적용.
-        //  CORS origin 수정 및 특정 URL에 대한 접근 제한 등의 설정 필요.
-
         return http
                 .csrf(AbstractHttpConfigurer::disable) // CSRF 설정 비활성화.
                 .cors(cors -> {
                     CorsConfigurationSource source = request -> {
                         CorsConfiguration config = new CorsConfiguration();
-                        config.setAllowedOrigins(List.of("*")); // 모든 도메인 허용.
-                        config.setAllowedMethods(List.of("*")); // 모든 HTTP 메서드 허용.
-                        config.setAllowedHeaders(List.of("*")); // 모든 헤더 허용.
+                        config.setAllowedOrigins(List.of(allowedOrigins)); // CORS 허용 도메인 설정.
+                        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")); // CORS 허용 메소드 설정.
+                        config.setAllowedHeaders(List.of("Authorization", "Content-Type")); // CORS 허용 헤더 설정.
                         return config;
                     };
 
